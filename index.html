@@ -4,9 +4,193 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Réemploi Express</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7f4;
+      color: #17221a;
+    }
+    header {
+      background: #173b27;
+      color: white;
+      padding: 24px 6%;
+    }
+    main {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    h1 { font-size: 42px; margin-bottom: 15px; }
+    .hero p { font-size: 19px; color: #526057; }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px #00000012;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 18px 0 7px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ccd5ce;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    textarea { min-height: 110px; }
+    button {
+      width: 100%;
+      margin-top: 25px;
+      padding: 15px;
+      border: 0;
+      border-radius: 8px;
+      background: #218c4b;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #176d39; }
+    #message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Réemploi Express</h1>
-  <p>Donnez une seconde vie à vos matériaux de construction.</p>
+
+<header>
+  <strong>♻️ Réemploi Express</strong>
+</header>
+
+<main>
+
+  <section class="hero">
+    <h1>Ne jetez pas vos matériaux.</h1>
+    <p>
+      Décrivez votre stock ou votre surplus.
+      Nous recherchons des possibilités de réemploi.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>Déclarer un lot de matériaux</h2>
+
+    <form id="materialForm">
+
+      <label>Votre entreprise</label>
+      <input id="company" required placeholder="Entreprise ABC">
+
+      <label>Email</label>
+      <input id="email" type="email" required placeholder="contact@entreprise.fr">
+
+      <label>Type de matériau</label>
+      <select id="material" required>
+        <option value="">Sélectionner</option>
+        <option>Portes</option>
+        <option>Bois</option>
+        <option>Sanitaires</option>
+        <option>Luminaires</option>
+        <option>Mobilier</option>
+        <option>Cloisons</option>
+        <option>Faux plafonds</option>
+        <option>Revêtements</option>
+        <option>Autre</option>
+      </select>
+
+      <label>Quantité approximative</label>
+      <input id="quantity" required placeholder="Ex : 25 portes">
+
+      <label>Localisation</label>
+      <input id="location" required placeholder="Le Havre, 76">
+
+      <label>Date de disponibilité</label>
+      <input id="available" type="date">
+
+      <label>Description</label>
+      <textarea id="description"
+        placeholder="État, dimensions, marque, caractéristiques..."></textarea>
+
+      <button type="submit">
+        Déclarer mon lot gratuitement
+      </button>
+
+    </form>
+
+    <div id="message"></div>
+
+  </section>
+
+</main>
+
+<script>
+const form = document.getElementById("materialForm");
+const message = document.getElementById("message");
+
+form.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  message.style.display = "block";
+  message.style.background = "#fff3cd";
+  message.textContent = "Enregistrement en cours...";
+
+  const data = {
+    company: document.getElementById("company").value,
+    email: document.getElementById("email").value,
+    material: document.getElementById("material").value,
+    quantity: document.getElementById("quantity").value,
+    location: document.getElementById("location").value,
+    available: document.getElementById("available").value,
+    description: document.getElementById("description").value
+  };
+
+  try {
+
+    const response = await fetch("/api/materials", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Erreur");
+    }
+
+    message.style.background = "#d1e7dd";
+    message.textContent =
+      "✅ Votre lot a bien été enregistré. Nous allons analyser votre demande.";
+
+    form.reset();
+
+  } catch (error) {
+
+    message.style.background = "#f8d7da";
+    message.textContent =
+      "❌ Une erreur est survenue. Réessayez dans quelques instants.";
+
+    console.error(error);
+  }
+
+});
+</script>
+
 </body>
 </html>
